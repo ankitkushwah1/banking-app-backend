@@ -2,6 +2,7 @@ const mysql = require("mysql");
 const uuid = require("uuid");
 const moment = require("moment");
 const axios = require("axios");
+const Transaction = require("./Transaction");
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -14,7 +15,7 @@ con.connect(function (err) {
   console.log("Connected!");
 });
 
-class AccountMysqlRepo {
+class TransactionMysqlRepo {
   getTransactions(accno) {
     let txnList = new Array();
     return new Promise((resolve, reject) => {
@@ -111,4 +112,4 @@ class AccountMysqlRepo {
   }
 }
 
-module.exports = AccountMysqlRepo;
+module.exports = TransactionMysqlRepo;

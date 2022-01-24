@@ -49,7 +49,7 @@ app.post(
   }
 );
 
-app.get("/api/v1/account/:id/passbook", authenticateToken, async (req, res) => {
+app.get("/api/v1/account/:id/passbook", async (req, res) => {
   let transactions = await transactionService.getTransactions(req.params.id);
   res.json(transactions);
 });
