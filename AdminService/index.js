@@ -36,10 +36,14 @@ app.get(
   }
 );
 
-app.get("/api/v1/account/admin/:name/all-users", async (req, res) => {
-  let userList = await adminService.getUsers();
-  res.json(userList);
-});
+app.get(
+  "/api/v1/account/admin/:name/all-users",
+  authenticateToken,
+  async (req, res) => {
+    let userList = await adminService.getUsers();
+    res.json(userList);
+  }
+);
 
 app.get(
   "/api/v1/account/admin/:name/all-transactions",
@@ -62,6 +66,28 @@ function authenticateToken(req, res, next) {
     if (payload.name != req.params.name) return res.sendStatus(401);
     next();
   });
+}
+
+function authenticateToken(req, res, next) {
+  console.log("inside authorization");
+  const bearer_token = req.header("Authorization");
+
+  if (!bearer_token) return res.status(401).send("Access denied ,no token");
+
+  try {
+    const token = bearer_token.split(" ")[1];
+    const decodePayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    console.log(decodePayload);
+    if (decodePayload.id === req.params.id) {
+      req.user = decodePayload;
+      next();
+    } else {
+      return res.sendStatus(401);
+    }
+  } catch (ex) {
+    return res.status(400).send("invalid token");
+  }
 }
 app.listen(port, function (err) {
   if (err) {

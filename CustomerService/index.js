@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const app = express();
 const port = 5000;
+
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -90,12 +91,16 @@ app.post("/api/v1/account/login", async (req, res) => {
   res.status(500).send("Incorrect Password");
 });
 
-app.post("/api/v1/account/update-balance/:id", async (req, res) => {
-  await userService.updateBalance(req.params.id, req.body.balance);
-  res.json({});
-});
+app.post(
+  "/api/v1/account/update-balance/:id",
+  authenticateToken,
+  async (req, res) => {
+    await userService.updateBalance(req.params.id, req.body.balance);
+    res.json({});
+  }
+);
 
-app.post("/api/v1/account/update/id", async (req, res) => {
+app.post("/api/v1/account/update/id", authenticateToken, async (req, res) => {
   const date = moment(new Date()).format("YYYY-MM-DD");
   const user = new User(
     req.body.accno,
@@ -111,12 +116,12 @@ app.post("/api/v1/account/update/id", async (req, res) => {
   res.json(user);
 });
 
-app.get("/api/v1/account/user/:id", async (req, res) => {
+app.get("/api/v1/account/user/:id", authenticateToken, async (req, res) => {
   const user = await userService.getUser(req.params.id);
   res.json(user);
 });
 
-app.get("/api/v1/account/admin/users", async (req, res) => {
+app.get("/api/v1/account/admin/users", authenticateToken, async (req, res) => {
   const users = await userService.getUsers();
   res.json(users);
 });
@@ -128,3 +133,25 @@ app.listen(port, function (err) {
   }
   console.log("Server is up and running on port : " + port);
 });
+
+function authenticateToken(req, res, next) {
+  console.log("inside authorization");
+  const bearer_token = req.header("Authorization");
+
+  if (!bearer_token) return res.status(401).send("Access denied ,no token");
+
+  try {
+    const token = bearer_token.split(" ")[1];
+    const decodePayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    console.log(decodePayload);
+    if (decodePayload.id === req.params.id) {
+      req.user = decodePayload;
+      next();
+    } else {
+      return res.sendStatus(401);
+    }
+  } catch (ex) {
+    return res.status(400).send("invalid token");
+  }
+}

@@ -22,8 +22,17 @@ app.post(
   "/api/v1/account/:id/transaction",
 
   async (req, res) => {
+    console.log(req.headers);
+    const accessToken = req.headers.authorization.split(" ")[1];
     const resp = await axios.get(
-      `http://localhost:5000/api/v1/account/user/${req.params.id}`
+      `http://localhost:5000/api/v1/account/user/${req.params.id}`,
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-type": "Application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
     );
     const user = resp.data;
     console.log(user);
@@ -49,23 +58,31 @@ app.post(
   }
 );
 
-app.get("/api/v1/account/:id/passbook", async (req, res) => {
+app.get("/api/v1/account/:id/passbook", authenticateToken, async (req, res) => {
   let transactions = await transactionService.getTransactions(req.params.id);
   res.json(transactions);
 });
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) return res.sendStatus(401);
+  console.log("inside authorization");
+  const bearer_token = req.header("Authorization");
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-    if (err) return res.sendStatus(403);
-    req.user = payload;
+  if (!bearer_token) return res.status(401).send("Access denied ,no token");
 
-    if (payload.id != req.params.id) return res.sendStatus(401);
-    next();
-  });
+  try {
+    const token = bearer_token.split(" ")[1];
+    const decodePayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    console.log(decodePayload);
+    if (decodePayload.id === req.params.id) {
+      req.user = decodePayload;
+      next();
+    } else {
+      return res.sendStatus(401);
+    }
+  } catch (ex) {
+    return res.status(400).send("invalid token");
+  }
 }
 app.listen(port, function (err) {
   if (err) {

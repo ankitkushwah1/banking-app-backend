@@ -57,13 +57,13 @@ class TransactionMysqlRepo {
         }
       });
 
-      const resp = await axios.post(
-        `http://localhost:5000/api/v1/account/update-balance/${transaction.accno}`,
-        {
-          accno: transaction.accno,
-          balance: user.balance + transaction.amount,
-        }
-      );
+      // const resp = await axios.post(
+      //   `http://localhost:5000/api/v1/account/update-balance/${transaction.accno}`,
+      //   {
+      //     accno: transaction.accno,
+      //     balance: user.balance + transaction.amount,
+      //   }
+      // );
 
       con.commit((err) => {
         if (err) {
