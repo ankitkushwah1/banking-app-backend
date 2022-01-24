@@ -2,9 +2,10 @@ const mysql = require("mysql");
 const uuid = require("uuid");
 const moment = require("moment");
 const axios = require("axios");
+require("dotenv").config();
 const Transaction = require("./Transaction");
 var con = mysql.createConnection({
-  host: "localhost",
+  host: process.env.LOCAL_HOST,
   user: "root",
   password: "root",
   database: "account_db",
@@ -14,6 +15,8 @@ con.connect(function (err) {
   if (err) throw err;
   console.log("Connected!");
 });
+
+const LOCAL_HOST = "user_svc";
 
 class TransactionMysqlRepo {
   getTransactions(accno) {
@@ -58,7 +61,7 @@ class TransactionMysqlRepo {
       });
 
       const resp = await axios.post(
-        `http://localhost:5000/api/v1/account/update-balance/${transaction.accno}`,
+        `http://${LOCAL_HOST}:5000/api/v1/account/update-balance/${transaction.accno}`,
         {
           accno: transaction.accno,
           balance: user.balance + transaction.amount,
@@ -100,7 +103,7 @@ class TransactionMysqlRepo {
       });
 
       const resp = await axios.post(
-        `http://localhost:5000/api/v1/account/update-balance/${transaction.accno}`,
+        `http://${LOCAL_HOST}:5000/api/v1/account/update-balance/${transaction.accno}`,
         {
           accno: transaction.accno,
           balance: user.balance - transaction.amount,

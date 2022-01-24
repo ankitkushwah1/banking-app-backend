@@ -2,9 +2,9 @@ const mysql = require("mysql");
 const User = require("./User");
 const uuid = require("uuid");
 const moment = require("moment");
-
+require("dotenv").config();
 var con = mysql.createConnection({
-  host: "localhost",
+  host: process.env.LOCAL_HOST,
   user: "root",
   password: "root",
   database: "account_db",

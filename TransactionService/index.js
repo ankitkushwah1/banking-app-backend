@@ -17,7 +17,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
-
+const LOCAL_HOST = "user_svc";
 app.post(
   "/api/v1/account/:id/transaction",
 
@@ -26,7 +26,7 @@ app.post(
     const accessToken = req.headers.authorization.split(" ")[1];
     console.log("accesToken", accessToken);
     const resp = await axios.get(
-      `http://localhost:5000/api/v1/account/user/${req.params.id}`,
+      `http://${LOCAL_HOST}:5000/api/v1/account/user/${req.params.id}`,
       {
         headers: {
           "Access-Control-Allow-Origin": "*",

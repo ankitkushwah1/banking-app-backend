@@ -100,7 +100,7 @@ app.post(
   }
 );
 
-app.post("/api/v1/account/update/id", authenticateToken, async (req, res) => {
+app.post("/api/v1/account/update/:id", authenticateToken, async (req, res) => {
   const date = moment(new Date()).format("YYYY-MM-DD");
   const user = new User(
     req.body.accno,
