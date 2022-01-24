@@ -1,4 +1,5 @@
 const axios = require("axios");
+
 class AdminService {
   constructor(mongoDbRepo, mySqlRepo) {
     this.mongoDbRepo = mongoDbRepo;
@@ -12,9 +13,9 @@ class AdminService {
     return this.mongoDbRepo.getAdmin(name);
   }
 
-  async getUsers(accessToken) {
+  async getUsers(accessToken, id) {
     const resp = await axios.get(
-      "http://localhost:5000/api/v1/account/admin/users",
+      `http://localhost:5000/api/v1/account/admin/${id}/users`,
       {
         headers: {
           "Access-Control-Allow-Origin": "*",
@@ -25,8 +26,6 @@ class AdminService {
     );
     return resp.data;
   }
-
-  async getAllUsersTransactions() {}
 }
 
 module.exports = AdminService;

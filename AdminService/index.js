@@ -4,14 +4,17 @@ const jwt = require("jsonwebtoken");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const bodyParser = require("body-parser");
 const mongoDbRepo = new AdminMongoDBRepo();
 const adminService = new AdminService(mongoDbRepo);
+
 const app = express();
 const port = 5002;
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
+
+
 app.post("/api/v1/account/admin/login", async (req, res) => {
   let name = req.body.name;
   let password = req.body.password;
@@ -20,7 +23,7 @@ app.post("/api/v1/account/admin/login", async (req, res) => {
   if (password == admin.password) {
     const payload = { id: admin.id, name: admin.name, isAdmin: true };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "10m",
+      expiresIn: "40m",
     });
     return res.json({ accessToken: accessToken, payload: payload });
   }
@@ -28,7 +31,7 @@ app.post("/api/v1/account/admin/login", async (req, res) => {
 });
 
 app.get(
-  "/api/v1/account/admin/:name/all-admins",
+  "/api/v1/account/admin/:id/all-admins",
   authenticateToken,
   async (req, res) => {
     let adminList = await adminService.getAllAdmin();
@@ -37,24 +40,12 @@ app.get(
 );
 
 app.get(
-  "/api/v1/account/admin/:name/all-users",
+  "/api/v1/account/admin/:id/all-users",
   authenticateToken,
   async (req, res) => {
-    console.log(req.headers);
-
-    // const accessToken = req.headers.authorization.split(" ")[1];
-    // console.log(accessToken);
-    // let userList = await adminService.getUsers(accessToken);
-    // res.json(userList);
-  }
-);
-
-app.get(
-  "/api/v1/account/admin/:name/all-transactions",
-  authenticateToken,
-  async (req, res) => {
-    let txnList = await adminService.getAllUsersTransactions();
-    res.json(txnList);
+    const accessToken = req.headers.authorization.split(" ")[1];
+    let userList = await adminService.getUsers(accessToken, req.user.id);
+    res.json(userList);
   }
 );
 
@@ -67,9 +58,7 @@ function authenticateToken(req, res, next) {
   try {
     const token = bearer_token.split(" ")[1];
     const decodePayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-    console.log(decodePayload);
-    if (decodePayload.name === req.params.name) {
+    if (decodePayload.id === req.params.id) {
       req.user = decodePayload;
       next();
     } else {
@@ -79,6 +68,7 @@ function authenticateToken(req, res, next) {
     return res.status(400).send("invalid token");
   }
 }
+
 app.listen(port, function (err) {
   if (err) {
     console.log(err);
