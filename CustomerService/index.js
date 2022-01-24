@@ -136,8 +136,8 @@ app.listen(port, function (err) {
 
 function authenticateToken(req, res, next) {
   console.log("inside authorization");
-  const bearer_token = req.header("Authorization");
-
+  const bearer_token = req.header("authorization");
+  console.log("b", bearer_token);
   if (!bearer_token) return res.status(401).send("Access denied ,no token");
 
   try {

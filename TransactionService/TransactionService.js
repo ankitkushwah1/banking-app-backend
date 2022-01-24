@@ -3,14 +3,14 @@ class TransactionService {
     this.sqlRepo = sqlRepo;
   }
 
-  performTransaction(transaction, user) {
+  performTransaction(transaction, user, accessToken) {
     if (transaction.type === "deposit") {
-      this.sqlRepo.deposit(transaction, user);
+      this.sqlRepo.deposit(transaction, user, accessToken);
       return;
     }
 
     if (transaction.type === "withdraw") {
-      this.sqlRepo.withdraw(transaction, user);
+      this.sqlRepo.withdraw(transaction, user, accessToken);
     }
   }
 

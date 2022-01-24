@@ -24,6 +24,7 @@ app.post(
   async (req, res) => {
     console.log(req.headers);
     const accessToken = req.headers.authorization.split(" ")[1];
+    console.log("accesToken", accessToken);
     const resp = await axios.get(
       `http://localhost:5000/api/v1/account/user/${req.params.id}`,
       {
@@ -35,7 +36,7 @@ app.post(
       }
     );
     const user = resp.data;
-    console.log(user);
+
     const id = uuid.v4();
     const accno = user.accno;
     const firstName = user.firstName;
@@ -53,7 +54,7 @@ app.post(
       date
     );
 
-    transactionService.performTransaction(transaction, user);
+    transactionService.performTransaction(transaction, user, accessToken);
     res.json(transaction);
   }
 );
@@ -65,7 +66,7 @@ app.get("/api/v1/account/:id/passbook", authenticateToken, async (req, res) => {
 
 function authenticateToken(req, res, next) {
   console.log("inside authorization");
-  const bearer_token = req.header("Authorization");
+  const bearer_token = req.header("authorization");
 
   if (!bearer_token) return res.status(401).send("Access denied ,no token");
 

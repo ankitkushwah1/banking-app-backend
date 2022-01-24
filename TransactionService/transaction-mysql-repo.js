@@ -40,7 +40,7 @@ class TransactionMysqlRepo {
     });
   }
 
-  async deposit(transaction, user) {
+  async deposit(transaction, user, accessToken) {
     const txnId = uuid.v4();
 
     con.beginTransaction(async (err) => {
@@ -57,13 +57,20 @@ class TransactionMysqlRepo {
         }
       });
 
-      // const resp = await axios.post(
-      //   `http://localhost:5000/api/v1/account/update-balance/${transaction.accno}`,
-      //   {
-      //     accno: transaction.accno,
-      //     balance: user.balance + transaction.amount,
-      //   }
-      // );
+      const resp = await axios.post(
+        `http://localhost:5000/api/v1/account/update-balance/${transaction.accno}`,
+        {
+          accno: transaction.accno,
+          balance: user.balance + transaction.amount,
+        },
+        {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-type": "Application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       con.commit((err) => {
         if (err) {
@@ -75,7 +82,7 @@ class TransactionMysqlRepo {
       console.log("transaction successful");
     });
   }
-  async withdraw(transaction, user) {
+  async withdraw(transaction, user, accessToken) {
     const txnId = uuid.v4();
 
     con.beginTransaction(async (err) => {
@@ -97,6 +104,13 @@ class TransactionMysqlRepo {
         {
           accno: transaction.accno,
           balance: user.balance - transaction.amount,
+        },
+        {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-type": "Application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
       );
 
