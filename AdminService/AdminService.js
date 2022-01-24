@@ -12,9 +12,16 @@ class AdminService {
     return this.mongoDbRepo.getAdmin(name);
   }
 
-  async getUsers() {
+  async getUsers(accessToken) {
     const resp = await axios.get(
-      "http://localhost:5000/api/v1/account/admin/users"
+      "http://localhost:5000/api/v1/account/admin/users",
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-type": "Application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
     );
     return resp.data;
   }

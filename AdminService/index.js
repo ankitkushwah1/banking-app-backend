@@ -40,8 +40,12 @@ app.get(
   "/api/v1/account/admin/:name/all-users",
   authenticateToken,
   async (req, res) => {
-    let userList = await adminService.getUsers();
-    res.json(userList);
+    console.log(req.headers);
+
+    // const accessToken = req.headers.authorization.split(" ")[1];
+    // console.log(accessToken);
+    // let userList = await adminService.getUsers(accessToken);
+    // res.json(userList);
   }
 );
 
@@ -55,20 +59,6 @@ app.get(
 );
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-    if (err) return res.sendStatus(403);
-    req.user = payload;
-
-    if (payload.name != req.params.name) return res.sendStatus(401);
-    next();
-  });
-}
-
-function authenticateToken(req, res, next) {
   console.log("inside authorization");
   const bearer_token = req.header("Authorization");
 
@@ -79,7 +69,7 @@ function authenticateToken(req, res, next) {
     const decodePayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     console.log(decodePayload);
-    if (decodePayload.id === req.params.id) {
+    if (decodePayload.name === req.params.name) {
       req.user = decodePayload;
       next();
     } else {

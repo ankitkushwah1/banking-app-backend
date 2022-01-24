@@ -81,7 +81,7 @@ app.post("/api/v1/account/login", async (req, res) => {
   if (await bcrypt.compare(password, user.password)) {
     const payload = { id: user.accno, name: user.firstName, isAdmin: false };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "20m",
+      expiresIn: "40m",
     });
 
     res.json({ accessToken: accessToken, payload: payload });
@@ -121,10 +121,14 @@ app.get("/api/v1/account/user/:id", authenticateToken, async (req, res) => {
   res.json(user);
 });
 
-app.get("/api/v1/account/admin/users", authenticateToken, async (req, res) => {
-  const users = await userService.getUsers();
-  res.json(users);
-});
+app.get(
+  "/api/v1/account/admin/:id/users",
+  authenticateToken,
+  async (req, res) => {
+    const users = await userService.getUsers();
+    res.json(users);
+  }
+);
 
 app.listen(port, function (err) {
   if (err) {
