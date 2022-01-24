@@ -90,10 +90,10 @@ app.post("/api/v1/account/login", async (req, res) => {
   res.status(500).send("Incorrect Password");
 });
 
-app.post("/api/v1/account/update-balance/:id", async(req,res)=>{
-  await userService.updateBalance(req.params.id,req.body.balance);
+app.post("/api/v1/account/update-balance/:id", async (req, res) => {
+  await userService.updateBalance(req.params.id, req.body.balance);
   res.json({});
-})
+});
 
 app.post("/api/v1/account/update/id", async (req, res) => {
   const date = moment(new Date()).format("YYYY-MM-DD");
@@ -114,6 +114,11 @@ app.post("/api/v1/account/update/id", async (req, res) => {
 app.get("/api/v1/account/user/:id", async (req, res) => {
   const user = await userService.getUser(req.params.id);
   res.json(user);
+});
+
+app.get("/api/v1/account/admin/users", async (req, res) => {
+  const users = await userService.getUsers();
+  res.json(users);
 });
 
 app.listen(port, function (err) {
