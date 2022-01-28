@@ -22,8 +22,8 @@ class TransactionMysqlRepo {
   getTransactions(accno) {
     let txnList = new Array();
     return new Promise((resolve, reject) => {
-      let sql = `select * from transaction  WHERE accno = '${accno}' `;
-      con.query(sql, (err, res) => {
+      let sql = `select * from transaction  WHERE accno = ? `;
+      con.query(sql, `${accno}`, (err, res) => {
         if (err) return reject(err);
         for (let data of res) {
           let transaction = new Transaction(
@@ -49,16 +49,27 @@ class TransactionMysqlRepo {
     con.beginTransaction(async (err) => {
       if (err) throw err;
       const dateTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-      let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES ('${txnId}',
-      '${transaction.accno}', '${transaction.firstName}', '${transaction.lastName}', '${transaction.amount}', 'deposit', '${dateTime}')`;
+      let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES (?,?,?,?,?,?,?)`;
 
-      con.query(sql1, (err, res) => {
-        if (err) {
-          return con.rollback(function () {
-            throw err;
-          });
+      con.query(
+        sql1,
+        [
+          `${txnId}`,
+          `${transaction.accno}`,
+          `${transaction.firstName}`,
+          `${transaction.lastName}`,
+          `${transaction.amount}`,
+          `deposit`,
+          `${dateTime}`,
+        ],
+        (err, res) => {
+          if (err) {
+            return con.rollback(function () {
+              throw err;
+            });
+          }
         }
-      });
+      );
 
       const resp = await axios.post(
         `http://${LOCAL_HOST}:5000/api/v1/account/update-balance/${transaction.accno}`,
@@ -91,16 +102,27 @@ class TransactionMysqlRepo {
     con.beginTransaction(async (err) => {
       if (err) throw err;
       const dateTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-      let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES ('${txnId}',
-      '${transaction.accno}', '${transaction.firstName}', '${transaction.lastName}', '${transaction.amount}', 'withdraw', '${dateTime}')`;
+      let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES (?,?,?,?,?,?,?)`;
 
-      con.query(sql1, (err, res) => {
-        if (err) {
-          return con.rollback(function () {
-            throw err;
-          });
+      con.query(
+        sql1,
+        [
+          `${txnId}`,
+          `${transaction.accno}`,
+          `${transaction.firstName}`,
+          `${transaction.lastName}`,
+          `${transaction.amount}`,
+          `deposit`,
+          `${dateTime}`,
+        ],
+        (err, res) => {
+          if (err) {
+            return con.rollback(function () {
+              throw err;
+            });
+          }
         }
-      });
+      );
 
       const resp = await axios.post(
         `http://${LOCAL_HOST}:5000/api/v1/account/update-balance/${transaction.accno}`,

@@ -21,8 +21,8 @@ const userService = new UserService(sqlRepo);
 let transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "ankitkmonocept@gmail.com",
-    pass: "monocept13@1998",
+    user: process.env.USER,
+    pass: process.env.PASSWORD,
   },
 });
 app.get("/", (req, res) => {
